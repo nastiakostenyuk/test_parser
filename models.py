@@ -6,7 +6,6 @@ from sqlalchemy import MetaData
 url = "postgresql+psycopg2://kosteniuk:1242@localhost/test_apartament"
 
 engine = create_engine(url)
-print(database_exists(engine.url))
 
 meta = MetaData()
 
@@ -24,7 +23,7 @@ apartament = Table(
 )
 
 
-def create_db():
+def create_db() -> None:
     if not database_exists(url):
         create_database(url)
         meta.create_all(engine)

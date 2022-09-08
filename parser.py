@@ -35,7 +35,7 @@ def parse_block(adv_block) -> dict:
     return advertisement
 
 
-def parse(pages):
+def parse(pages: int) -> None:
     for page in range(pages):
         response = session.get(url, params={"page": pages+1}, headers={"x-requested-with": "XMLHttpRequest"})
         soup = bs4.BeautifulSoup(response.text, "lxml")
@@ -46,8 +46,7 @@ def parse(pages):
                 connection.execute(
                     apartament.insert(), [apar_dct]
                 )
-        # current_list = list(map(parse_block, news_block_list))
-        # print(current_list)
+
 
 
 
