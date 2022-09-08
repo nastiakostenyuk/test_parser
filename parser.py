@@ -3,6 +3,7 @@ import logging
 import bs4
 import dateparser
 
+from models import apartament, engine
 from fake_useragent import UserAgent
 from datetime import datetime
 
@@ -23,7 +24,7 @@ def parse_block(adv_block) -> dict:
         dt = dateparser.parse(date)
         date_time = dt.strftime("%d-%m-%Y")
     advertisement = {
-        "img": adv_block.find("div", class_="image").find("img").get("data-src"),
+        "img_url": adv_block.find("div", class_="image").find("img").get("data-src"),
         "title": adv_block.find("div", class_="title").find("a", class_="title").text.strip(),
         "date": date_time,
         "location": adv_block.find("div", class_="location").find("span").text.strip(),
@@ -36,8 +37,17 @@ def parse_block(adv_block) -> dict:
 
 def parse(pages):
     for page in range(pages):
-        response = session.get(url, params={"page": page+1}, headers={"x-requested-with": "XMLHttpRequest"})
+        response = session.get(url, params={"page": pages+1}, headers={"x-requested-with": "XMLHttpRequest"})
         soup = bs4.BeautifulSoup(response.text, "lxml")
         news_block_list = soup.select(".search-item")
-        current_list = list(map(parse_block, news_block_list))
-        print(current_list)
+        for element in news_block_list:
+            apar_dct = parse_block(element)
+            with engine.begin() as connection:
+                connection.execute(
+                    apartament.insert(), [apar_dct]
+                )
+        # current_list = list(map(parse_block, news_block_list))
+        # print(current_list)
+
+
+
